@@ -11,11 +11,19 @@ function App() {
   const [list, setList] = useState([]);
   
   const store = ()=> {
-    console.log(list)
-    console.log(this)
     return {
       addTodo(){
-        setList([...list, "asd"])
+        setList([...list, `Item ${list.length}`])
+      },
+      updateTodo(id, newTodo){
+        //ELIMINAR REFERENCIA AL OBJETO ORIGINAL
+        const localList = JSON.parse(JSON.stringify(list));
+        
+        //REEMPLAZAR EL OBJETO
+        localList.splice(id, 1, newTodo);
+        
+        //NUEVO ESTADO
+        setList(localList); 
       }
     }
   }
@@ -23,9 +31,6 @@ function App() {
   return (
     <div >
       
-      <button onClick={()=>{setList([...list, "asd"])}}>
-        UseStore
-      </button>
       <Router>        
       
         <Link to="/todos">
@@ -34,6 +39,7 @@ function App() {
         <Link to="/">
           Home
         </Link>
+
         <TodoState.Provider value={list}>
           <TodoActions.Provider value={store()}>
             <Switch>
@@ -41,10 +47,24 @@ function App() {
                 <TodoItem></TodoItem>
               </Route>
               <Route path="/todos">
-                <TodoList></TodoList>
+                <div>
+                  
+                  <button onClick={()=>{setList([...list, `Item ${list.length}`])}}>
+                    Add Item
+                  </button>
+
+                  <TodoList></TodoList>
+                
+                </div>
               </Route>
               <Route path="/">
-                This is the Home
+                <div>
+                  <br />
+                  <h1>
+                    BIENVENIDOS A ROMPIENDO CON NICO
+                  </h1>
+                  
+                </div>
               </Route>
             </Switch>
           </TodoActions.Provider>
@@ -78,11 +98,18 @@ function TodoList(){
 function TodoItem(){
   const {id} = useParams();
   const todoStore = useContext(TodoActions)
+  const todoList = useContext(TodoState)
   return( 
     <div>
-      {id}
+      Number of items:{todoList.length}
+      <hr />
+      {todoList[id]}
+      <hr />
       <button onClick={todoStore.addTodo}>
         MAGIC
+      </button>
+      <button onClick={()=>todoStore.updateTodo(id, `I'm the todo number ${id}`)}>
+        CHANGE MY NAME
       </button>
     </div>
   )
